@@ -5,12 +5,11 @@
             Upload
         </div>
         <input @click.prevent="store" type="submit" placeholder="title" value="Add" class="btn btn-primary">
-        <div class="mt-5">
-            <div v-if="post">
-        <h4>{{ post.title}}</h4>
-            </div>
-            <div v-for="image in post.images">
-                <img :src="image.url" class="mt-3">
+        <div v-if="post" class="mt-5">
+            <h4>{{ post.title}}</h4>
+            <div v-for="image in post.images" class="mb-3">
+                <img :src="image.preview_url" class="mb-3">
+                <img :src="image.url">
             </div>
         </div>
     </div>
@@ -37,7 +36,7 @@ export default {
             autoProcessQueue: false,
             addRemoveLinks: true
         })
-        this.getPosts()
+        this.getPost()
     },
 
     methods: {
@@ -51,9 +50,12 @@ export default {
             data.append('title', this.title)
             this.title = ''
             axios.post('/api/posts', data)
+                .then( res => {
+                    this.getPost()
+                })
         },
-        getPosts() {
-            axios.get('/api/posts')
+        getPost() {
+           axios.get('/api/posts')
             .then( res => {
                 this.post = res.data.data
             })

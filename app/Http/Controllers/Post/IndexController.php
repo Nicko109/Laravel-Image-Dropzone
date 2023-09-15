@@ -21,5 +21,7 @@ class IndexController extends Controller
         $post = Post::latest()->first();
 
        return new PostResource($post);
+
+
    }
 }
