@@ -20,4 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('posts')->group(function () {
     Route::post('/', [\App\Http\Controllers\Post\StoreController::class, '__invoke']);
+    Route::get('/', [\App\Http\Controllers\Post\IndexController::class, '__invoke']);
 });
