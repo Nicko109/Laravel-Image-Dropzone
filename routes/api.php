@@ -22,7 +22,7 @@ Route::prefix('posts')->group(function () {
     Route::prefix('images')->group(function () {
         Route::post('/', [\App\Http\Controllers\Post\Image\StoreController::class, '__invoke']);
     });
-    Route::post('/', [\App\Http\Controllers\Post\StoreController::class, '__invoke']);
+    Route::patch('/{post}', [\App\Http\Controllers\Post\UpdateController::class, '__invoke']);
     Route::get('/', [\App\Http\Controllers\Post\IndexController::class, '__invoke']);
 });
 
