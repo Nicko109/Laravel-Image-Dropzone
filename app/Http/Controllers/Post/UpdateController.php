@@ -19,9 +19,36 @@ class UpdateController extends Controller
     {
 
         $data = $request->validated();
-        $images = $data['images'];
-        unset($data['images']);
-        $post = Post::firstOrCreate($data);
+        $images = isset($data['images']) ? $data['images'] : null;
+        $imageIdsForDelete = isset($data['images_ids_for_delete']) ? $data['images_ids_for_delete'] : null;
+        $imageUrlsForDelete = isset($data['images_urls_for_delete']) ? $data['images_urls_for_delete'] : null;
+
+
+
+        unset($data['images'], $data['images_ids_for_delete'], $data['images_urls_for_delete']);
+        $post->update($data);
+
+        $currentImages = $post->images;
+        if ($imageIdsForDelete) {
+            foreach ($currentImages as $currentImage) {
+                if (in_array($currentImage->id,$imageIdsForDelete)) {
+                    Storage::disk('public')->delete($currentImage->path);
+                    Storage::disk('public')->delete(str_replace('images/', 'images/prev_', $currentImage->path));
+                    $currentImage->delete();
+                }
+            }
+        }
+        if ($imageUrlsForDelete) {
+            foreach ($imageUrlsForDelete as $imageUrlForDelete) {
+                $removeStr = $request->root() . '/storage/';
+                $path = str_replace($removeStr, '', $imageUrlForDelete);
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+
+
+        if ($images) {
         foreach ($images as $image) {
             $name = md5(Carbon::now() . '_' . $image->getClientOriginalName()) . '.' . $image->getClientOriginalExtension();
             $filePath = Storage::disk('public')->putFileAs('/images', $image, $name);
@@ -37,7 +64,7 @@ class UpdateController extends Controller
                 ->save(storage_path('app/public/images/' . $previewName));
 
         }
-
+        }
         return response()->json(['message' => 'success']);
     }
 }
